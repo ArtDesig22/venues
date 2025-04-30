@@ -23,10 +23,10 @@ app.get('/places', async (req, res) => {
     keyword: 'Poupatempo OR INSS OR Receita Federal OR Polícia OR Polícia Científica OR Procon OR Prefeitura OR Vigilância Sanitária OR Superintendência Estadual'
   },
   'banks': {
-    type: 'bank'
+    keyword: 'Banco do Brasil OR Caixa Econômica Federal OR BNDES OR Banco da Amazônia OR Banco do Nordeste OR Banestes OR Banrisul OR Bradesco OR Itaú OR Santander OR Banco Safra OR Itaú Unibanco OR BTG Pactual OR Banco Inter OR Banco BMG OR BNP Paribas OR Citibank OR Banco Original OR Banco Intercap OR Crefisa OR Banco Modal OR Sicredi OR Sicoob OR Banco Votorantim OR Banco Mercantil do Brasil'
   },
   'services': {
-    keyword: 'companhia elétrica OR agência de água OR agência de gás OR concessionária de energia'
+    keyword: 'AES Sul OR Amazonas Energia OR CEA OR Celesc OR CEMIG OR CER OR CEEE OR CHESP OR Copel OR CSA OR CPFL OR DCEE OR EDP OR Enel OR Energisa OR Equatorial OR Light OR Neoenergia OR Roraima Energia OR SABESP OR COMPESA OR EMBASA OR CASAN OR COPASA OR Sanepar OR CAEMA OR CAGECE OR CAGEPA OR CASAL OR DESO OR Agespisa OR CAERN OR DAE OR DAEP OR SAAE OR Comgás OR Necta Gás OR Naturgy'
   },
   'retail': {
     type: 'store'
