@@ -11,13 +11,27 @@ app.get('/places', async (req, res) => {
   const { lat, lng, radius = 12000, category } = req.query;
 
   const categories = {
-    'hospitals': { type: 'hospital' },
-    'clinics': { type: 'doctor', keyword: 'clínica' },
-    'government': { keyword: 'órgãos públicos' },
-    'banks': { type: 'bank' },
-    'services': { keyword: 'serviços' },
-    'retail': { type: 'store' },
-  };
+  'hospitals': {
+    type: 'hospital',
+    keyword: 'hospital público OR hospital particular OR pronto socorro'
+  },
+  'clinics': {
+    type: 'doctor',
+    keyword: 'clínica médica OR clínica geral'
+  },
+  'government': {
+    keyword: 'Poupatempo OR INSS OR Receita Federal OR Polícia OR Polícia Científica OR Procon OR Prefeitura OR Vigilância Sanitária OR Superintendência Estadual'
+  },
+  'banks': {
+    type: 'bank'
+  },
+  'services': {
+    keyword: 'companhia elétrica OR agência de água OR agência de gás OR concessionária de energia'
+  },
+  'retail': {
+    type: 'store'
+  }
+};
 
   const cat = categories[category];
   if (!cat) return res.status(400).json({ error: 'Invalid category' });
