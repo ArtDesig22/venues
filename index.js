@@ -42,7 +42,7 @@ const allowedBanks = [
 
 // Approved utility/service providers
 const allowedServices = [
-  'AES Sul', 'Amazonas Energia', 'Companhia de Eletricidade do Amapá',
+  'Celesc', 'Enel', 'AES Sul', 'Amazonas Energia', 'Companhia de Eletricidade do Amapá',
   'Centrais Elétricas de Santa Catarina', 'Companhia Energética de Minas Gerais',
   'Companhia Energética de Roraima', 'Companhia Estadual de Distribuição de Energia Elétrica',
   'Companhia Hidroelétrica São Patrício', 'Companhia Paranaense de Energia',
