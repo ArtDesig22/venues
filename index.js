@@ -81,6 +81,7 @@ const categories = {
   },
   'services': {
     type: 'establishment' // Filtered after response
+    keyword: 'energia OR água OR gás OR Celesc OR Neoenergia OR Enel OR Copasa OR Sabesp OR Sanepar OR Casan'
   },
   'retail': {
     type: 'store'
