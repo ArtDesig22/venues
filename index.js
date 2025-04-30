@@ -80,15 +80,15 @@ const categories = {
     type: 'bank' // Filtered after response
   },
   'services': {
-  type: 'establishment',
-  keyword: 'energia OR água OR gás OR Celesc OR Neoenergia OR Enel OR Copasa OR Sabesp OR Sanepar OR Casan'
+    type: 'establishment',
+    keyword: 'energia OR água OR gás OR Celesc OR Neoenergia OR Enel OR Copasa OR Sabesp OR Sanepar OR Casan'
   },
   'retail': {
     type: 'store'
   }
 };
 
-// API route
+// Endpoint for nearby places
 app.get('/places', async (req, res) => {
   const { lat, lng, radius = 12000, category } = req.query;
 
@@ -108,7 +108,6 @@ app.get('/places', async (req, res) => {
     const response = await axios.get(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?${params}`);
     let results = response.data.results || [];
 
-    // Filter banks by approved names
     if (category === 'banks') {
       results = results.filter(place =>
         allowedBanks.some(bank =>
@@ -117,7 +116,6 @@ app.get('/places', async (req, res) => {
       );
     }
 
-    // Filter services by approved agency names
     if (category === 'services') {
       results = results.filter(place =>
         allowedServices.some(service =>
@@ -130,6 +128,29 @@ app.get('/places', async (req, res) => {
   } catch (err) {
     console.error('Google Places failed:', err.message);
     res.status(500).json({ error: 'Google Places failed' });
+  }
+});
+
+// ✅ New endpoint to fetch detailed info of a single place by ID
+app.get('/places/details', async (req, res) => {
+  const { place_id } = req.query;
+
+  if (!place_id) {
+    return res.status(400).json({ error: 'Missing place_id' });
+  }
+
+  try {
+    const response = await axios.get('https://maps.googleapis.com/maps/api/place/details/json', {
+      params: {
+        place_id,
+        key: process.env.GOOGLE_API_KEY
+      }
+    });
+
+    res.json(response.data);
+  } catch (error) {
+    console.error('Failed to fetch place details:', error.message);
+    res.status(500).json({ error: 'Failed to fetch place details' });
   }
 });
 
