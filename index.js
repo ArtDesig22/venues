@@ -7,10 +7,64 @@ require('dotenv').config();
 const app = express();
 app.use(cors());
 
-app.get('/places', async (req, res) => {
-  const { lat, lng, radius = 12000, category } = req.query;
+const PORT = process.env.PORT || 3001;
 
-  const categories = {
+// Approved bank names
+const allowedBanks = [
+  'Banco do Brasil',
+  'Caixa Econômica Federal',
+  'Banco Nacional de Desenvolvimento Econômico e Social',
+  'Banco da Amazônia',
+  'Banco do Nordeste',
+  'Banco do Estado do Espírito Santo',
+  'Banco do Rio Grande do Sul',
+  'Banco Bradesco',
+  'Itaú',
+  'Banco Santander',
+  'Banco Safra',
+  'Itaú Unibanco',
+  'Santander',
+  'BTG Pactual',
+  'Banco Inter',
+  'Banco BMG',
+  'Banco BNP Paribas',
+  'Banco Citibank',
+  'Banco Original',
+  'Banco Intercap',
+  'Banco Crefisa',
+  'Banco Modal',
+  'Sicredi',
+  'Sicoob',
+  'Banrisul',
+  'Banco Votorantim',
+  'Banco Mercantil do Brasil'
+];
+
+// Approved utility/service providers
+const allowedServices = [
+  'AES Sul', 'Amazonas Energia', 'Companhia de Eletricidade do Amapá',
+  'Centrais Elétricas de Santa Catarina', 'Companhia Energética de Minas Gerais',
+  'Companhia Energética de Roraima', 'Companhia Estadual de Distribuição de Energia Elétrica',
+  'Companhia Hidroelétrica São Patrício', 'Companhia Paranaense de Energia',
+  'Concessionária de Saneamento do Amapá', 'CPFL Energia',
+  'Distribuidora Catarinense de Energia Elétrica', 'EDP Brasil',
+  'EDP Espírito Santo', 'EDP São Paulo', 'Enel Brasil',
+  'Enel Distribuição Ceará', 'Enel Distribuição Rio', 'Enel Distribuição São Paulo',
+  'Energisa Acre', 'Energisa Borborema', 'Energisa Mato Grosso',
+  'Energisa Mato Grosso do Sul', 'Energisa Minas Gerais', 'Energisa Nova Friburgo',
+  'Energisa Rondônia', 'Energisa Sergipe', 'Energisa Sul-Sudeste',
+  'Energisa Tocantins', 'Equatorial Energia', 'Equatorial Energia Alagoas',
+  'Equatorial Energia Goiás', 'Equatorial Energia Maranhão',
+  'Equatorial Energia Pará', 'Equatorial Energia Piauí', 'Grupo Energisa',
+  'Light S/A', 'Neoenergia', 'Neoenergia Brasília', 'Neoenergia Coelba',
+  'Neoenergia COSERN', 'Neoenergia Elektro', 'Neoenergia Pernambuco',
+  'Roraima Energia', 'SABESP', 'COMPESA', 'EMBASA', 'CASAN', 'COPASA',
+  'Sanepar', 'CAEMA', 'CAGECE', 'CAGEPA', 'CASAL', 'DESO', 'Agespisa',
+  'CAERN', 'DAE', 'DAEP', 'SAAEJ', 'SAAE', 'Comgás', 'Necta Gás', 'Naturgy'
+];
+
+// Category mapping
+const categories = {
   'hospitals': {
     type: 'hospital',
     keyword: 'hospital público OR hospital particular OR pronto socorro'
@@ -23,15 +77,19 @@ app.get('/places', async (req, res) => {
     keyword: 'Poupatempo OR INSS OR Receita Federal OR Polícia OR Polícia Científica OR Procon OR Prefeitura OR Vigilância Sanitária OR Superintendência Estadual'
   },
   'banks': {
-    keyword: 'Banco do Brasil OR Caixa Econômica Federal OR BNDES OR Banco da Amazônia OR Banco do Nordeste OR Banestes OR Banrisul OR Bradesco OR Itaú OR Santander OR Banco Safra OR Itaú Unibanco OR BTG Pactual OR Banco Inter OR Banco BMG OR BNP Paribas OR Citibank OR Banco Original OR Banco Intercap OR Crefisa OR Banco Modal OR Sicredi OR Sicoob OR Banco Votorantim OR Banco Mercantil do Brasil'
+    type: 'bank' // Filtered after response
   },
   'services': {
-    keyword: 'AES Sul OR Amazonas Energia OR CEA OR Celesc OR CEMIG OR CER OR CEEE OR CHESP OR Copel OR CSA OR CPFL OR DCEE OR EDP OR Enel OR Energisa OR Equatorial OR Light OR Neoenergia OR Roraima Energia OR SABESP OR COMPESA OR EMBASA OR CASAN OR COPASA OR Sanepar OR CAEMA OR CAGECE OR CAGEPA OR CASAL OR DESO OR Agespisa OR CAERN OR DAE OR DAEP OR SAAE OR Comgás OR Necta Gás OR Naturgy'
+    type: 'establishment' // Filtered after response
   },
   'retail': {
     type: 'store'
   }
 };
+
+// API route
+app.get('/places', async (req, res) => {
+  const { lat, lng, radius = 12000, category } = req.query;
 
   const cat = categories[category];
   if (!cat) return res.status(400).json({ error: 'Invalid category' });
@@ -47,11 +105,31 @@ app.get('/places', async (req, res) => {
 
   try {
     const response = await axios.get(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?${params}`);
-    res.json(response.data);
+    let results = response.data.results || [];
+
+    // Filter banks by approved names
+    if (category === 'banks') {
+      results = results.filter(place =>
+        allowedBanks.some(bank =>
+          place.name.toLowerCase().includes(bank.toLowerCase())
+        )
+      );
+    }
+
+    // Filter services by approved agency names
+    if (category === 'services') {
+      results = results.filter(place =>
+        allowedServices.some(service =>
+          place.name.toLowerCase().includes(service.toLowerCase())
+        )
+      );
+    }
+
+    res.json({ results });
   } catch (err) {
+    console.error('Google Places failed:', err.message);
     res.status(500).json({ error: 'Google Places failed' });
   }
 });
 
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => console.log(`Listening on ${PORT}`));
+app.listen(PORT, () => console.log(`Listening on port ${PORT}`));
