@@ -80,8 +80,8 @@ const categories = {
     type: 'bank' // Filtered after response
   },
   'services': {
-    type: 'establishment' // Filtered after response
-    keyword: 'energia OR água OR gás OR Celesc OR Neoenergia OR Enel OR Copasa OR Sabesp OR Sanepar OR Casan'
+  type: 'establishment',
+  keyword: 'energia OR água OR gás OR Celesc OR Neoenergia OR Enel OR Copasa OR Sabesp OR Sanepar OR Casan'
   },
   'retail': {
     type: 'store'
